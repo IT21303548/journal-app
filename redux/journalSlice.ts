@@ -1,5 +1,6 @@
+// redux/journalSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { JournalEntry } from '../types/journal'; // Import JournalEntry
+import { JournalEntry } from '../types/journal';
 
 interface JournalState {
   entries: JournalEntry[];
@@ -25,8 +26,11 @@ const journalSlice = createSlice({
     deleteEntry: (state, action: PayloadAction<string>) => {
       state.entries = state.entries.filter((entry) => entry.id !== action.payload);
     },
+    logout: (state) => {
+      state.entries = []; // Clear all entries on logout
+    },
   },
 });
 
-export const { addEntry, updateEntry, deleteEntry } = journalSlice.actions;
+export const { addEntry, updateEntry, deleteEntry, logout } = journalSlice.actions;
 export default journalSlice.reducer;

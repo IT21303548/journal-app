@@ -1,78 +1,89 @@
+// assets/components/MoodPicker.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useFonts, Inter_700Bold, Inter_400Regular } from '@expo-google-fonts/inter';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-type Props = {
+type MoodPickerProps = {
   selectedMood: string;
   onSelectMood: (mood: string) => void;
 };
 
-const moods = ['😊', '😢', '😡', '😐', '🥳'];
+const moods = ['😊', '😢', '😡', '😴', '🤩'];
 
-const MoodPicker = ({ selectedMood, onSelectMood }: Props) => {
-  const [fontsLoaded] = useFonts({ Inter_700Bold, Inter_400Regular });
+const MoodPicker: React.FC<MoodPickerProps> = React.memo(({ selectedMood, onSelectMood }) => {
+  const [isLandscape, setIsLandscape] = React.useState(
+    Dimensions.get('window').width > Dimensions.get('window').height
+  );
 
-  const moodColors: { [key: string]: string } = {
-    '😊': '#6B48FF',
-    '🥳': '#FFD60A',
-    '😐': '#A0A0A0',
-    '😢': '#FF5A5F',
-    '😡': '#FF5A5F',
-  };
+  React.useEffect(() => {
+    const updateOrientation = () => {
+      const { width, height } = Dimensions.get('window');
+      setIsLandscape(width > height);
+    };
 
-  if (!fontsLoaded) return null;
+    const subscription = Dimensions.addEventListener('change', updateOrientation);
+    return () => subscription?.remove();
+  }, []);
 
   return (
     <View style={styles.container}>
-      {moods.map((mood) => (
-        <TouchableOpacity
-          key={mood}
-          style={[
-            styles.moodButton,
-            { backgroundColor: selectedMood === mood ? moodColors[mood] : '#FFFFFF' },
-            selectedMood === mood && styles.selectedMood,
-          ]}
-          onPress={() => onSelectMood(mood)}
-        >
-          <Text
+      <Text style={[styles.label, isLandscape && styles.labelLandscape]}>
+        How are you feeling?
+      </Text>
+      <View style={styles.moodContainer}>
+        {moods.map((mood) => (
+          <TouchableOpacity
+            key={mood}
             style={[
-              styles.moodText,
-              { color: selectedMood === mood ? '#FFFFFF' : '#2D2D2D' },
+              styles.moodButton,
+              selectedMood === mood && styles.selectedMood,
+              isLandscape && styles.moodButtonLandscape,
             ]}
+            onPress={() => onSelectMood(mood)}
           >
-            {mood}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text style={[styles.moodText, isLandscape && styles.moodTextLandscape]}>{mood}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
+    marginBottom: hp('2%'),
+  },
+  label: {
+    fontSize: wp('4%'),
+    fontWeight: 'bold',
+    color: '#2D2D2D',
+    marginBottom: hp('1%'),
+  },
+  labelLandscape: {
+    fontSize: wp('3.5%'),
+  },
+  moodContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginVertical: 20,
+    flexWrap: 'wrap',
   },
   moodButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    padding: wp('3%'),
+    borderRadius: wp('2%'),
+    backgroundColor: '#E5E7EB',
+    margin: wp('1%'),
+  },
+  moodButtonLandscape: {
+    padding: wp('2%'),
   },
   selectedMood: {
-    borderColor: '#FFFFFF',
-    shadowOpacity: 0.3,
+    backgroundColor: '#6B48FF',
   },
   moodText: {
-    fontSize: 28,
+    fontSize: wp('5%'),
+  },
+  moodTextLandscape: {
+    fontSize: wp('4%'),
   },
 });
 

@@ -1,296 +1,303 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, StatusBar } from 'react-native';
+// app/journal.tsx
+import React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../redux/store';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { JournalEntry } from '../types/journal';
 import { addEntry, updateEntry, deleteEntry } from '../redux/journalSlice';
-import { Ionicons } from '@expo/vector-icons';
-import { useFonts, Inter_700Bold, Inter_400Regular } from '@expo-google-fonts/inter';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router, usePathname } from 'expo-router';
-import JournalCard from '../assets/components/JournalCard';
+import { RootState, AppDispatch } from '../redux/store';
 import JournalForm from '../assets/components/JournalForm';
-import { JournalEntry } from '../types/journal'; // Import JournalEntry
+import { useLocalSearchParams } from 'expo-router';
 
-const JournalScreen = () => {
-  const dispatch = useDispatch();
+type JournalCardProps = {
+  entry: JournalEntry;
+  onEdit: (entry: JournalEntry) => void;
+  onDelete: (id: string) => void;
+};
+
+const JournalCard: React.FC<JournalCardProps> = React.memo(({ entry, onEdit, onDelete }) => {
+  const [isLandscape, setIsLandscape] = React.useState(
+    Dimensions.get('window').width > Dimensions.get('window').height
+  );
+
+  React.useEffect(() => {
+    const updateOrientation = () => {
+      const { width, height } = Dimensions.get('window');
+      setIsLandscape(width > height);
+    };
+
+    const subscription = Dimensions.addEventListener('change', updateOrientation);
+    return () => subscription?.remove();
+  }, []);
+
+  return (
+    <View style={[styles.card, isLandscape && styles.cardLandscape]}>
+      <Text style={[styles.date, isLandscape && styles.dateLandscape]}>{entry.date}</Text>
+      <Text style={[styles.text, isLandscape && styles.textLandscape]}>{entry.text}</Text>
+      <Text style={[styles.mood, isLandscape && styles.moodLandscape]}>Mood: {entry.mood}</Text>
+      {entry.image && (
+        <Image
+          source={{ uri: entry.image }}
+          style={[styles.image, isLandscape && styles.imageLandscape]}
+        />
+      )}
+      <View style={styles.cardButtons}>
+        <TouchableOpacity onPress={() => onEdit(entry)} style={styles.editButton}>
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onDelete(entry.id)} style={styles.deleteButton}>
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+});
+
+export default function Journal() {
+  const dispatch = useDispatch<AppDispatch>();
   const entries = useSelector((state: RootState) => state.journal.entries);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [editEntry, setEditEntry] = useState<JournalEntry | null>(null);
-  const [fontsLoaded] = useFonts({ Inter_700Bold, Inter_400Regular });
-  const pathname = usePathname();
+  const { openForm } = useLocalSearchParams<{ openForm?: string }>();
+  const [modalVisible, setModalVisible] = React.useState(openForm === 'true');
+  const [editEntry, setEditEntry] = React.useState<JournalEntry | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLandscape, setIsLandscape] = React.useState(
+    Dimensions.get('window').width > Dimensions.get('window').height
+  );
 
-  const addOrUpdateEntry = useCallback((entry: JournalEntry) => {
-    if (editEntry) {
-      dispatch(updateEntry({ ...entry, id: editEntry.id }));
-    } else {
-      dispatch(addEntry({ ...entry, id: Date.now().toString() }));
+  React.useEffect(() => {
+    const updateOrientation = () => {
+      const { width, height } = Dimensions.get('window');
+      setIsLandscape(width > height);
+    };
+
+    const subscription = Dimensions.addEventListener('change', updateOrientation);
+    return () => subscription?.remove();
+  }, []);
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(false);
+    };
+    loadData();
+  }, []);
+
+  React.useEffect(() => {
+    if (openForm === 'true') {
+      setModalVisible(true);
     }
-    setModalVisible(false);
-    setEditEntry(null);
-  }, [editEntry, dispatch]);
+  }, [openForm]);
 
-  const deleteEntryHandler = useCallback((id: string) => {
-    dispatch(deleteEntry(id));
-  }, [dispatch]);
+  const groupedEntries = entries.reduce((acc: { [key: string]: JournalEntry[] }, entry: JournalEntry) => {
+    const date = entry.date;
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(entry);
+    return acc;
+  }, {});
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('userName');
-      router.replace('/');
-      setMenuVisible(false);
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
+  const sections = Object.keys(groupedEntries)
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+    .map((date) => ({
+      title: date,
+      data: groupedEntries[date],
+    }));
+
+  const handleEdit = (entry: JournalEntry) => {
+    setEditEntry(entry);
+    setModalVisible(true);
   };
 
-  const groupedEntries = entries.reduce((acc, entry) => {
-    acc[entry.date] = acc[entry.date] || [];
-    acc[entry.date].push(entry);
-    return acc;
-  }, {} as Record<string, JournalEntry[]>);
+  const handleDelete = (id: string) => {
+    dispatch(deleteEntry(id));
+  };
 
-  if (!fontsLoaded) return null;
+  const handleSave = (entry: JournalEntry) => {
+    dispatch(entry.id === editEntry?.id ? updateEntry(entry) : addEntry(entry));
+    setModalVisible(false);
+    setEditEntry(null);
+  };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+    setEditEntry(null);
+  };
+
+  const renderItem = ({ item }: { item: JournalEntry }) => (
+    <JournalCard entry={item} onEdit={handleEdit} onDelete={handleDelete} />
+  );
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6B48FF" />
+        <Text style={[styles.loadingText, isLandscape && styles.loadingTextLandscape]}>
+          Loading your journal...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F6FA" />
-      <View style={styles.header}>
-        <Text style={styles.title}>My Journal 📓</Text>
-        <TouchableOpacity onPress={() => setMenuVisible(true)}>
-          <Ionicons name="ellipsis-vertical" size={28} color="#2D2D2D" />
-        </TouchableOpacity>
-      </View>
-      {entries.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No entries yet. Start journaling! ✍️</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={Object.entries(groupedEntries)}
-          renderItem={({ item: [date, entries] }) => (
-            <View style={styles.dateGroup}>
-              <Text style={styles.date}>{date}</Text>
-              {entries.map((entry) => (
-                <JournalCard
-                  key={entry.id}
-                  entry={entry}
-                  onEdit={() => {
-                    setEditEntry(entry);
-                    setModalVisible(true);
-                  }}
-                  onDelete={() => deleteEntryHandler(entry.id)}
-                />
-              ))}
-            </View>
-          )}
-          keyExtractor={([date]) => date}
-          contentContainerStyle={styles.entriesContainer}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-        />
-      )}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.footerButton}
-          onPress={() => router.push('/journal')}
-        >
-          <Ionicons
-            name="book"
-            size={28}
-            color={pathname === '/journal' ? '#6B48FF' : '#A0A0A0'}
-          />
-          <Text
-            style={[
-              styles.footerText,
-              { color: pathname === '/journal' ? '#6B48FF' : '#A0A0A0' },
-            ]}
-          >
-            Journal
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => {
-            setEditEntry(null);
-            setModalVisible(true);
-          }}
-        >
-          <Ionicons name="add" size={32} color="#FFF" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.footerButton}
-          onPress={() => router.push('/dashboard')}
-        >
-          <Ionicons
-            name="stats-chart"
-            size={28}
-            color={pathname === '/dashboard' ? '#6B48FF' : '#A0A0A0'}
-          />
-          <Text
-            style={[
-              styles.footerText,
-              { color: pathname === '/dashboard' ? '#6B48FF' : '#A0A0A0' },
-            ]}
-          >
-            Dashboard
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <JournalForm
-            entry={editEntry}
-            onSave={addOrUpdateEntry}
-            onCancel={() => setModalVisible(false)}
-          />
-        </View>
-      </Modal>
-      <Modal
-        visible={menuVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setMenuVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.menuOverlay}
-          activeOpacity={1}
-          onPress={() => setMenuVisible(false)}
-        >
-          <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-              <Ionicons name="log-out" size={20} color="#FF5A5F" />
-              <Text style={styles.menuText}>Logout</Text>
-            </TouchableOpacity>
+      <FlatList
+        data={sections}
+        renderItem={({ item }) => (
+          <View>
+            <Text style={[styles.sectionHeader, isLandscape && styles.sectionHeaderLandscape]}>
+              {item.title}
+            </Text>
+            <FlatList
+              data={item.data}
+              renderItem={renderItem}
+              keyExtractor={(entry) => entry.id}
+              numColumns={isLandscape ? 2 : 1}
+            />
           </View>
-        </TouchableOpacity>
-      </Modal>
+        )}
+        keyExtractor={(section) => section.title}
+        key={isLandscape ? 'landscape' : 'portrait'}
+        ListEmptyComponent={
+          <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
+            No entries yet. Add one!
+          </Text>
+        }
+      />
+      {modalVisible && (
+        <View style={styles.modalContainer}>
+          <JournalForm entry={editEntry} onSave={handleSave} onCancel={handleCancel} />
+        </View>
+      )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F6FA',
-    paddingHorizontal: 20,
+    padding: wp('5%'),
+    backgroundColor: '#F3F4F6',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontFamily: 'Inter_700Bold',
-    color: '#2D2D2D',
-  },
-  dateGroup: {
-    marginBottom: 20,
-  },
-  date: {
-    fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    color: '#6B48FF',
-    marginBottom: 10,
-  },
-  entriesContainer: {
-    paddingBottom: 20,
-  },
-  emptyContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F3F4F6',
   },
-  emptyText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 18,
+  loadingText: {
+    fontSize: wp('4%'),
     color: '#6B7280',
-    textAlign: 'center',
+    marginTop: hp('2%'),
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+  loadingTextLandscape: {
+    fontSize: wp('3.5%'),
+  },
+  sectionHeader: {
+    fontSize: wp('5%'),
+    fontWeight: 'bold',
+    marginVertical: hp('1%'),
+    color: '#2D2D2D',
+  },
+  sectionHeaderLandscape: {
+    fontSize: wp('4%'),
+  },
+  card: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderRadius: wp('3%'),
+    padding: wp('4%'),
+    marginBottom: hp('1%'),
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    marginHorizontal: wp('1%'),
   },
-  footerButton: {
-    alignItems: 'center',
-    paddingVertical: 5,
-    flex: 1,
-    borderRadius: 10,
+  cardLandscape: {
+    width: wp('45%'),
+    margin: wp('2%'),
   },
-  footerText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    marginTop: 5,
+  date: {
+    fontSize: wp('4%'),
+    fontWeight: 'bold',
+    color: '#6B48FF',
   },
-  fab: {
-    backgroundColor: '#6B48FF',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 40,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 10,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
+  dateLandscape: {
+    fontSize: wp('3.5%'),
   },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 20,
+  text: {
+    fontSize: wp('4%'),
+    color: '#2D2D2D',
+    marginVertical: hp('1%'),
   },
-  menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    paddingTop: 80,
-    paddingRight: 20,
+  textLandscape: {
+    fontSize: wp('3.5%'),
   },
-  menuContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+  mood: {
+    fontSize: wp('3.5%'),
+    color: '#6B7280',
   },
-  menuItem: {
+  moodLandscape: {
+    fontSize: wp('3%'),
+  },
+  image: {
+    width: wp('20%'),
+    height: wp('20%'),
+    borderRadius: wp('2%'),
+    marginVertical: hp('1%'),
+  },
+  imageLandscape: {
+    width: wp('15%'),
+    height: wp('15%'),
+  },
+  cardButtons: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    backgroundColor: '#FFF5F5',
+    justifyContent: 'flex-end',
+    marginTop: hp('1%'),
   },
-  menuText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 16,
-    color: '#FF5A5F',
-    marginLeft: 10,
+  editButton: {
+    backgroundColor: '#6B48FF',
+    padding: wp('2%'),
+    borderRadius: wp('2%'),
+    marginLeft: wp('2%'),
+  },
+  deleteButton: {
+    backgroundColor: '#FF5A5F',
+    padding: wp('2%'),
+    borderRadius: wp('2%'),
+    marginLeft: wp('2%'),
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: wp('3.5%'),
+  },
+  buttonTextLandscape: {
+    fontSize: wp('3%'),
+  },
+  emptyText: {
+    fontSize: wp('4%'),
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: hp('5%'),
+  },
+  emptyTextLandscape: {
+    fontSize: wp('3.5%'),
+  },
+  modalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
-
-export default JournalScreen;
