@@ -1,22 +1,22 @@
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  FlatList,
   Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { JournalEntry } from '../types/journal';
-import { addEntry, updateEntry, deleteEntry } from '../redux/journalSlice';
-import { RootState, AppDispatch } from '../redux/store';
-import JournalForm from '../assets/components/JournalForm';
-import { useLocalSearchParams } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { useDispatch, useSelector } from 'react-redux';
+import JournalForm from '../assets/components/JournalForm';
+import { addEntry, deleteEntry, updateEntry } from '../redux/journalSlice';
+import { AppDispatch, RootState } from '../redux/store';
+import { JournalEntry } from '../types/journal';
 
 type JournalCardProps = {
   entry: JournalEntry;
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     marginTop: hp('1%'),
   },
   editButton: {
-    backgroundColor: '#6B48FF',
+    backgroundColor: '#135b02',
     padding: wp('2%'),
     borderRadius: wp('2%'),
     marginLeft: wp('2%'),

@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { JournalEntry } from '../types/journal';
-import { RootState } from '../redux/store';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import { JournalEntry } from '../types/journal';
 
 export default function Dashboard() {
   const entries = useSelector((state: RootState) => state.journal.entries);
@@ -34,11 +34,11 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={[styles.header, isLandscape && styles.headerLandscape]}>Dashboard 📊 Bar Chart</Text>
+      <Text style={[styles.header, isLandscape && styles.headerLandscape]}>Dashboard 📊</Text>
 
       <Animated.View entering={FadeInDown.duration(500)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Mood Trends 😊🌟 Smiling Face & Sparkles
+          Mood Trends 😊🌟
         </Text>
         {Object.keys(moodCounts).length > 0 ? (
           Object.entries(moodCounts).map(([mood, count]) => (
@@ -47,7 +47,7 @@ export default function Dashboard() {
                 {mood}: {count} {count === 1 ? 'time' : 'times'} ⏰ Clock
               </Text>
               <LinearGradient
-                colors={['#6B48FF', '#FFD60A']}
+                colors={['#54d934', '#19490d']}
                 style={[
                   styles.trendBar,
                   {
@@ -61,14 +61,14 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No mood data yet. Start journaling! 📝 Pencil
+            No mood data yet. Start journaling! 📝 
           </Text>
         )}
       </Animated.View>
 
       <Animated.View entering={FadeInDown.duration(700)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Entry Frequency 📅📈 Calendar & Chart
+          Entry Frequency 📅📈 
         </Text>
         {Object.keys(entryFrequency).length > 0 ? (
           Object.entries(entryFrequency).map(([date, count]) => (
@@ -77,7 +77,7 @@ export default function Dashboard() {
                 {date}: {count} {count === 1 ? 'entry' : 'entries'} 📋 Clipboard
               </Text>
               <LinearGradient
-                colors={['#FFD60A', '#6B48FF']}
+                colors={['#54d934', '#19490d']}
                 style={[
                   styles.trendBar,
                   {
@@ -94,7 +94,7 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No entries yet. Add some! 📝 Pencil
+            No entries yet. Add some! 📝 
           </Text>
         )}
       </Animated.View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: wp('5%'),
     fontWeight: 'bold',
-    color: '#6B48FF',
+    color: '#135b02',
     marginBottom: hp('1%'),
   },
   sectionTitleLandscape: {

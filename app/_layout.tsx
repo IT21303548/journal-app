@@ -72,7 +72,7 @@ export default function Layout() {
               style={styles.footerButton}
               onPress={() => router.push('/journal')}
             >
-              <Ionicons name="book-outline" size={wp('6%')} color="#6B48FF" />
+              <Ionicons name="book-outline" size={wp('6%')} color="#ffffff" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
                 Journal
               </Text>
@@ -87,7 +87,7 @@ export default function Layout() {
               style={styles.footerButton}
               onPress={() => router.push('/dashboard')}
             >
-              <Ionicons name="stats-chart-outline" size={wp('6%')} color="#6B48FF" />
+              <Ionicons name="stats-chart-outline" size={wp('6%')} color="#ffffff" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
                 Dashboard
               </Text>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#19490d',
     paddingVertical: hp('2%'),
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: wp('3.5%'),
-    color: '#6B48FF',
+    color: '#FFFFFF',
   },
   footerTextLandscape: {
     fontSize: wp('3%'),
