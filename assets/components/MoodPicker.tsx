@@ -8,7 +8,24 @@ type MoodPickerProps = {
   onSelectMood: (mood: string) => void;
 };
 
-const moods = ['😊', '😢', '😡', '😴', '🤩'];
+// Expanded list of moods with names
+const moods = [
+  { emoji: '😊', name: 'Smiling Face' },
+  { emoji: '😢', name: 'Crying Face' },
+  { emoji: '😡', name: 'Angry Face' },
+  { emoji: '😴', name: 'Sleeping Face' },
+  { emoji: '🤩', name: 'Star-Struck' },
+  { emoji: '😂', name: 'Laughing Face' },
+  { emoji: '😍', name: 'Heart Eyes' },
+  { emoji: '😱', name: 'Shocked Face' },
+  { emoji: '🤔', name: 'Thinking Face' },
+  { emoji: '😎', name: 'Cool Face' },
+  { emoji: '🥳', name: 'Partying Face' },
+  { emoji: '😞', name: 'Sad Face' },
+  { emoji: '🤗', name: 'Hugging Face' },
+  { emoji: '😜', name: 'Winking Face' },
+  { emoji: '🤯', name: 'Mind Blown' },
+];
 
 const MoodPicker: React.FC<MoodPickerProps> = React.memo(({ selectedMood, onSelectMood }) => {
   const [isLandscape, setIsLandscape] = React.useState(
@@ -32,18 +49,23 @@ const MoodPicker: React.FC<MoodPickerProps> = React.memo(({ selectedMood, onSele
       <View style={styles.moodContainer}>
         {moods.map((mood, index) => (
           <Animated.View
-            key={mood}
+            key={mood.emoji}
             entering={FadeIn.delay(index * 100).duration(300)}
           >
             <TouchableOpacity
               style={[
                 styles.moodButton,
-                selectedMood === mood && styles.selectedMood,
+                selectedMood === mood.emoji && styles.selectedMood,
                 isLandscape && styles.moodButtonLandscape,
               ]}
-              onPress={() => onSelectMood(mood)}
+              onPress={() => onSelectMood(mood.emoji)}
             >
-              <Text style={[styles.moodText, isLandscape && styles.moodTextLandscape]}>{mood}</Text>
+              <Text style={[styles.moodText, isLandscape && styles.moodTextLandscape]}>
+                {mood.emoji}
+              </Text>
+              <Text style={[styles.moodName, isLandscape && styles.moodNameLandscape]}>
+                {mood.name}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         ))}
@@ -79,6 +101,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+    alignItems: 'center',
   },
   moodButtonLandscape: {
     padding: wp('2%'),
@@ -91,6 +114,14 @@ const styles = StyleSheet.create({
   },
   moodTextLandscape: {
     fontSize: wp('4%'),
+  },
+  moodName: {
+    fontSize: wp('3%'),
+    color: '#2D2D2D',
+    marginTop: hp('0.5%'),
+  },
+  moodNameLandscape: {
+    fontSize: wp('2.5%'),
   },
 });
 

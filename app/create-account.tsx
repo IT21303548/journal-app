@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { router } from 'expo-router';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { useDispatch } from 'react-redux';
 import { login } from '../redux/journalSlice';
 
@@ -25,24 +25,24 @@ export default function CreateAccount() {
 
   const handleCreateAccount = () => {
     if (username.trim()) {
-      dispatch(login(username)); // Set the user in the Redux store
+      dispatch(login(username));
       router.push('/journal');
     }
   };
 
   return (
     <LinearGradient
-      colors={['#FFD60A', '#6B48FF']}
+      colors={['#18230F', '#27391C']}
       style={styles.container}
     >
       <View style={styles.content}>
         <Ionicons name="person-add" size={wp('12%')} color="#FFFFFF" style={styles.icon} />
         <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-          Create Your Account
+          Create Your Account 🧑‍💻
         </Text>
         <TextInput
           style={[styles.input, isLandscape && styles.inputLandscape]}
-          placeholder="Enter your username"
+          placeholder="Enter your username 👤"
           placeholderTextColor="#FFFFFF"
           value={username}
           onChangeText={setUsername}
@@ -52,7 +52,7 @@ export default function CreateAccount() {
           onPress={handleCreateAccount}
         >
           <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-            Start Journaling
+            Start Journaling 
           </Text>
         </TouchableOpacity>
       </View>

@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { router } from 'expo-router';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 export default function Index() {
   const [isLandscape, setIsLandscape] = React.useState(
@@ -21,23 +21,23 @@ export default function Index() {
 
   return (
     <LinearGradient
-      colors={['#6B48FF', '#FFD60A']}
+      colors={['#18230F', '#27391C']}
       style={styles.container}
     >
       <View style={styles.content}>
         <Ionicons name="book" size={wp('15%')} color="#FFFFFF" style={styles.icon} />
         <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-          Welcome to Journal App
+          Welcome to Journal App 📖
         </Text>
         <Text style={[styles.subtitle, isLandscape && styles.subtitleLandscape]}>
-          Capture your thoughts, moods, and memories in a creative way!
+          Capture your thoughts, moods, and memories in a creative way! 🌟✨
         </Text>
         <TouchableOpacity
           style={[styles.button, isLandscape && styles.buttonLandscape]}
           onPress={() => router.push('/create-account')}
         >
           <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-            Get Started
+            Get Started 🚀
           </Text>
         </TouchableOpacity>
       </View>

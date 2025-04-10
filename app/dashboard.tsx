@@ -34,17 +34,17 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={[styles.header, isLandscape && styles.headerLandscape]}>Dashboard 📊</Text>
+      <Text style={[styles.header, isLandscape && styles.headerLandscape]}>Dashboard 📊 Bar Chart</Text>
 
       <Animated.View entering={FadeInDown.duration(500)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Mood Trends 😊🌟
+          Mood Trends 😊🌟 Smiling Face & Sparkles
         </Text>
         {Object.keys(moodCounts).length > 0 ? (
           Object.entries(moodCounts).map(([mood, count]) => (
             <View key={mood} style={styles.trendItem}>
               <Text style={[styles.trendText, isLandscape && styles.trendTextLandscape]}>
-                {mood}: {count} {count === 1 ? 'time' : 'times'}
+                {mood}: {count} {count === 1 ? 'time' : 'times'} ⏰ Clock
               </Text>
               <LinearGradient
                 colors={['#6B48FF', '#FFD60A']}
@@ -61,20 +61,20 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No mood data yet. Start journaling! 📝
+            No mood data yet. Start journaling! 📝 Pencil
           </Text>
         )}
       </Animated.View>
 
       <Animated.View entering={FadeInDown.duration(700)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Entry Frequency 📅📈
+          Entry Frequency 📅📈 Calendar & Chart
         </Text>
         {Object.keys(entryFrequency).length > 0 ? (
           Object.entries(entryFrequency).map(([date, count]) => (
             <View key={date} style={styles.trendItem}>
               <Text style={[styles.trendText, isLandscape && styles.trendTextLandscape]}>
-                {date}: {count} {count === 1 ? 'entry' : 'entries'}
+                {date}: {count} {count === 1 ? 'entry' : 'entries'} 📋 Clipboard
               </Text>
               <LinearGradient
                 colors={['#FFD60A', '#6B48FF']}
@@ -94,7 +94,7 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No entries yet. Add some! 📝
+            No entries yet. Add some! 📝 Pencil
           </Text>
         )}
       </Animated.View>

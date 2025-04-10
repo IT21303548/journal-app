@@ -40,10 +40,20 @@ const JournalCard: React.FC<JournalCardProps> = React.memo(({ entry, onEdit, onD
 
   const moodColors: { [key: string]: string } = {
     '😊': '#6B48FF',
-    '🥳': '#FFD60A',
-    '😐': '#A0A0A0',
     '😢': '#FF5A5F',
     '😡': '#FF5A5F',
+    '😴': '#A0A0A0',
+    '🤩': '#FFD60A',
+    '😂': '#FFD60A',
+    '😍': '#FF5A5F',
+    '😱': '#FF5A5F',
+    '🤔': '#A0A0A0',
+    '😎': '#6B48FF',
+    '🥳': '#FFD60A',
+    '😞': '#FF5A5F',
+    '🤗': '#FFD60A',
+    '😜': '#FFD60A',
+    '🤯': '#FF5A5F',
   };
 
   return (
@@ -55,8 +65,8 @@ const JournalCard: React.FC<JournalCardProps> = React.memo(({ entry, onEdit, onD
         { borderLeftColor: moodColors[entry.mood] || '#6B48FF', borderLeftWidth: 5 },
       ]}
     >
-      <Text style={[styles.date, isLandscape && styles.dateLandscape]}>📅 {entry.date}</Text>
-      <Text style={[styles.text, isLandscape && styles.textLandscape]}>{entry.text}</Text>
+      <Text style={[styles.date, isLandscape && styles.dateLandscape]}>📅  {entry.date}</Text>
+      <Text style={[styles.text, isLandscape && styles.textLandscape]}>💭  {entry.text}</Text>
       <Text style={[styles.mood, isLandscape && styles.moodLandscape]}>Mood: {entry.mood} 🌟</Text>
       {entry.image && (
         <Image
@@ -153,7 +163,7 @@ export default function Journal() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6B48FF" />
         <Text style={[styles.loadingText, isLandscape && styles.loadingTextLandscape]}>
-          Loading your journal... ⏳
+          Loading your journal... ⏳ Hourglass
         </Text>
       </View>
     );
@@ -180,7 +190,7 @@ export default function Journal() {
         key={isLandscape ? 'landscape' : 'portrait'}
         ListEmptyComponent={
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No entries yet. Add one! 📝
+            No entries yet. Add one! 📝 Pencil
           </Text>
         }
       />

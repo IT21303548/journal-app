@@ -1,14 +1,13 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { Stack, router } from 'expo-router';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Stack, router } from 'expo-router';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from '../redux/store';
 import { logout } from '../redux/journalSlice';
-import { RootState } from '../redux/store';
-import { LinearGradient } from 'expo-linear-gradient';
+import { RootState, persistor, store } from '../redux/store';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -32,13 +31,13 @@ const Header = () => {
   };
 
   return (
-    <LinearGradient colors={['#6B48FF', '#FFD60A']} style={[styles.header, isLandscape && styles.headerLandscape]}>
+    <LinearGradient colors={['#27391C', '#71cf46']} style={[styles.header, isLandscape && styles.headerLandscape]}>
       <Text style={[styles.headerTitle, isLandscape && styles.headerTitleLandscape]}>
         {user ? `Hello, ${user}! 👋` : 'Journal App 📖'}
       </Text>
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={[styles.logoutText, isLandscape && styles.logoutTextLandscape]}>
-          Logout 🚪
+          Logout
         </Text>
       </TouchableOpacity>
     </LinearGradient>
@@ -75,7 +74,7 @@ export default function Layout() {
             >
               <Ionicons name="book-outline" size={wp('6%')} color="#6B48FF" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
-                Journal 📝
+                Journal
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -90,7 +89,7 @@ export default function Layout() {
             >
               <Ionicons name="stats-chart-outline" size={wp('6%')} color="#6B48FF" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
-                Dashboard 📊 
+                Dashboard
               </Text>
             </TouchableOpacity>
           </View>
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
     fontSize: wp('4%'),
   },
   logoutButton: {
-    backgroundColor: '#FF5A5F',
+    backgroundColor: '#ff4444',
     paddingVertical: hp('1%'),
     paddingHorizontal: wp('3%'),
     borderRadius: wp('2%'),
