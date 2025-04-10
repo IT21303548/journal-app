@@ -37,4 +37,4 @@ A React Native journaling app with local storage, mood tracking, and visualizati
 - AsyncStorage has size limits, but sufficient for this app’s scope.
 
 ## Screenshots
-![WhatsApp Image 2025-04-10 at 21 46 00_a0ebb3ae](https://github.com/user-attachments/assets/6ec2ebf9-72fc-4e65-9da1-5226b685fd1d)
+
