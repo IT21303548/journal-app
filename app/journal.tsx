@@ -1,4 +1,3 @@
-// app/journal.tsx
 import React from 'react';
 import {
   View,
@@ -17,6 +16,7 @@ import { addEntry, updateEntry, deleteEntry } from '../redux/journalSlice';
 import { RootState, AppDispatch } from '../redux/store';
 import JournalForm from '../assets/components/JournalForm';
 import { useLocalSearchParams } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 type JournalCardProps = {
   entry: JournalEntry;
@@ -34,16 +34,30 @@ const JournalCard: React.FC<JournalCardProps> = React.memo(({ entry, onEdit, onD
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
 
+  const moodColors: { [key: string]: string } = {
+    '😊': '#6B48FF',
+    '🥳': '#FFD60A',
+    '😐': '#A0A0A0',
+    '😢': '#FF5A5F',
+    '😡': '#FF5A5F',
+  };
+
   return (
-    <View style={[styles.card, isLandscape && styles.cardLandscape]}>
-      <Text style={[styles.date, isLandscape && styles.dateLandscape]}>{entry.date}</Text>
+    <Animated.View
+      entering={FadeInDown.duration(500)}
+      style={[
+        styles.card,
+        isLandscape && styles.cardLandscape,
+        { borderLeftColor: moodColors[entry.mood] || '#6B48FF', borderLeftWidth: 5 },
+      ]}
+    >
+      <Text style={[styles.date, isLandscape && styles.dateLandscape]}>📅 {entry.date}</Text>
       <Text style={[styles.text, isLandscape && styles.textLandscape]}>{entry.text}</Text>
-      <Text style={[styles.mood, isLandscape && styles.moodLandscape]}>Mood: {entry.mood}</Text>
+      <Text style={[styles.mood, isLandscape && styles.moodLandscape]}>Mood: {entry.mood} 🌟</Text>
       {entry.image && (
         <Image
           source={{ uri: entry.image }}
@@ -52,13 +66,13 @@ const JournalCard: React.FC<JournalCardProps> = React.memo(({ entry, onEdit, onD
       )}
       <View style={styles.cardButtons}>
         <TouchableOpacity onPress={() => onEdit(entry)} style={styles.editButton}>
-          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Edit</Text>
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Edit ✏️</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => onDelete(entry.id)} style={styles.deleteButton}>
-          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Delete</Text>
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>Delete 🗑️</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 });
 
@@ -78,7 +92,6 @@ export default function Journal() {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
@@ -140,7 +153,7 @@ export default function Journal() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6B48FF" />
         <Text style={[styles.loadingText, isLandscape && styles.loadingTextLandscape]}>
-          Loading your journal...
+          Loading your journal... ⏳
         </Text>
       </View>
     );
@@ -153,7 +166,7 @@ export default function Journal() {
         renderItem={({ item }) => (
           <View>
             <Text style={[styles.sectionHeader, isLandscape && styles.sectionHeaderLandscape]}>
-              {item.title}
+              📅 {item.title}
             </Text>
             <FlatList
               data={item.data}
@@ -167,7 +180,7 @@ export default function Journal() {
         key={isLandscape ? 'landscape' : 'portrait'}
         ListEmptyComponent={
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No entries yet. Add one!
+            No entries yet. Add one! 📝
           </Text>
         }
       />
@@ -205,6 +218,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: hp('1%'),
     color: '#2D2D2D',
+    backgroundColor: '#FFFFFF',
+    padding: wp('2%'),
+    borderRadius: wp('2%'),
   },
   sectionHeaderLandscape: {
     fontSize: wp('4%'),

@@ -4,9 +4,12 @@ import { router } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/journalSlice';
 
 export default function CreateAccount() {
   const [username, setUsername] = useState('');
+  const dispatch = useDispatch();
   const [isLandscape, setIsLandscape] = React.useState(
     Dimensions.get('window').width > Dimensions.get('window').height
   );
@@ -22,6 +25,7 @@ export default function CreateAccount() {
 
   const handleCreateAccount = () => {
     if (username.trim()) {
+      dispatch(login(username)); // Set the user in the Redux store
       router.push('/journal');
     }
   };

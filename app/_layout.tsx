@@ -1,16 +1,18 @@
-// app/_layout.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../redux/store';
 import { logout } from '../redux/journalSlice';
+import { RootState } from '../redux/store';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Header = () => {
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.journal.user);
   const [isLandscape, setIsLandscape] = React.useState(
     Dimensions.get('window').width > Dimensions.get('window').height
   );
@@ -20,27 +22,26 @@ const Header = () => {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
 
   const handleLogout = () => {
     dispatch(logout());
-    router.replace('/'); // Redirect to index.tsx (landing page)
+    router.replace('/');
   };
 
   return (
-    <View style={[styles.header, isLandscape && styles.headerLandscape]}>
+    <LinearGradient colors={['#6B48FF', '#FFD60A']} style={[styles.header, isLandscape && styles.headerLandscape]}>
       <Text style={[styles.headerTitle, isLandscape && styles.headerTitleLandscape]}>
-        Journal App
+        {user ? `Hello, ${user}! 👋` : 'Journal App 📖'}
       </Text>
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={[styles.logoutText, isLandscape && styles.logoutTextLandscape]}>
-          Logout
+          Logout 🚪
         </Text>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -54,7 +55,6 @@ export default function Layout() {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
@@ -75,7 +75,7 @@ export default function Layout() {
             >
               <Ionicons name="book-outline" size={wp('6%')} color="#6B48FF" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
-                Journal
+                Journal 📝
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -90,7 +90,7 @@ export default function Layout() {
             >
               <Ionicons name="stats-chart-outline" size={wp('6%')} color="#6B48FF" />
               <Text style={[styles.footerText, isLandscape && styles.footerTextLandscape]}>
-                Dashboard
+                Dashboard 📊 
               </Text>
             </TouchableOpacity>
           </View>
@@ -103,9 +103,9 @@ export default function Layout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F3F4F6',
   },
   header: {
-    backgroundColor: '#6B48FF',
     paddingVertical: hp('2%'),
     paddingHorizontal: wp('5%'),
     flexDirection: 'row',

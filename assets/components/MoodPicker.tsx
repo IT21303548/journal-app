@@ -1,7 +1,7 @@
-// assets/components/MoodPicker.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 type MoodPickerProps = {
   selectedMood: string;
@@ -20,7 +20,6 @@ const MoodPicker: React.FC<MoodPickerProps> = React.memo(({ selectedMood, onSele
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
@@ -28,21 +27,25 @@ const MoodPicker: React.FC<MoodPickerProps> = React.memo(({ selectedMood, onSele
   return (
     <View style={styles.container}>
       <Text style={[styles.label, isLandscape && styles.labelLandscape]}>
-        How are you feeling?
+        How are you feeling? 🌈
       </Text>
       <View style={styles.moodContainer}>
-        {moods.map((mood) => (
-          <TouchableOpacity
+        {moods.map((mood, index) => (
+          <Animated.View
             key={mood}
-            style={[
-              styles.moodButton,
-              selectedMood === mood && styles.selectedMood,
-              isLandscape && styles.moodButtonLandscape,
-            ]}
-            onPress={() => onSelectMood(mood)}
+            entering={FadeIn.delay(index * 100).duration(300)}
           >
-            <Text style={[styles.moodText, isLandscape && styles.moodTextLandscape]}>{mood}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.moodButton,
+                selectedMood === mood && styles.selectedMood,
+                isLandscape && styles.moodButtonLandscape,
+              ]}
+              onPress={() => onSelectMood(mood)}
+            >
+              <Text style={[styles.moodText, isLandscape && styles.moodTextLandscape]}>{mood}</Text>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
       </View>
     </View>
@@ -72,6 +75,10 @@ const styles = StyleSheet.create({
     borderRadius: wp('2%'),
     backgroundColor: '#E5E7EB',
     margin: wp('1%'),
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   moodButtonLandscape: {
     padding: wp('2%'),

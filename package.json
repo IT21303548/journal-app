@@ -52,7 +52,8 @@
     "redux-persist": "^6.0.0",
     "victory": "^37.3.6",
     "victory-native": "^41.16.2",
-    "expo-linear-gradient": "~14.0.2"
+    "expo-linear-gradient": "~14.0.2",
+    "react-native-reanimated": "~3.16.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

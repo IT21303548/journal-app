@@ -10,12 +10,18 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import MoodPicker from './MoodPicker';
 import * as ImagePicker from 'expo-image-picker';
 import { useFonts, Inter_700Bold, Inter_400Regular } from '@expo-google-fonts/inter';
 import { JournalEntry } from '../../types/journal';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import Animated, { FadeIn, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   entry: JournalEntry | null;
@@ -29,11 +35,39 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
   const [image, setImage] = useState<string | undefined>(entry?.image);
   const [isSaving, setIsSaving] = useState(false);
   const [fontsLoaded] = useFonts({ Inter_700Bold, Inter_400Regular });
+  const user = useSelector((state: RootState) => state.journal.user);
   const [isLandscape, setIsLandscape] = useState(
     Dimensions.get('window').width > Dimensions.get('window').height
   );
 
-  useEffect(() => {
+  const saveScale = useSharedValue(1);
+  const cancelScale = useSharedValue(1);
+
+  const saveAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: saveScale.value }],
+  }));
+
+  const cancelAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cancelScale.value }],
+  }));
+
+  const handleSavePressIn = () => {
+    saveScale.value = withSpring(0.95);
+  };
+
+  const handleSavePressOut = () => {
+    saveScale.value = withSpring(1);
+  };
+
+  const handleCancelPressIn = () => {
+    cancelScale.value = withSpring(0.95);
+  };
+
+  const handleCancelPressOut = () => {
+    cancelScale.value = withSpring(1);
+  };
+
+  React.useEffect(() => {
     const updateOrientation = () => {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
@@ -43,6 +77,11 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
   }, []);
 
   const handleSave = async () => {
+    if (!user) {
+      Alert.alert('Not Logged In', 'Please log in to save your journal entry.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const newEntry: JournalEntry = {
@@ -78,20 +117,23 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.keyboardContainer}
     >
-      <View style={[styles.container, isLandscape && styles.containerLandscape]}>
-        <View style={styles.header}>
+      <Animated.View entering={FadeIn.duration(300)} style={[styles.container, isLandscape && styles.containerLandscape]}>
+        <LinearGradient
+          colors={['#6B48FF', '#FFD60A']}
+          style={styles.header}
+        >
           <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-            {entry ? 'Edit Entry ✍️' : 'New Entry ✍️'}
+            {entry ? 'Edit Entry ✍️' : 'New Entry 📝'}
           </Text>
-        </View>
+        </LinearGradient>
         <TextInput
           style={[styles.input, isLandscape && styles.inputLandscape]}
-          placeholder="Write your thoughts..."
+          placeholder="Write your thoughts... ✍️"
           placeholderTextColor="#6B7280"
           value={text}
-          onChangeText={setText} // Removed debounce for instant feedback
+          onChangeText={setText}
           multiline
-          autoFocus={!entry} // Auto-focus on new entry
+          autoFocus={!entry}
           textAlignVertical="top"
         />
         <MoodPicker selectedMood={mood} onSelectMood={setMood} />
@@ -107,22 +149,50 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
           />
         )}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.cancelButton} onPress={onCancel} disabled={isSaving}>
-            <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.addButton} onPress={handleSave} disabled={isSaving}>
-            {isSaving ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-                Save Entry ✅
-              </Text>
-            )}
-          </TouchableOpacity>
+          <Animated.View style={cancelAnimatedStyle}>
+            <TouchableOpacity
+              onPressIn={handleCancelPressIn}
+              onPressOut={handleCancelPressOut}
+              onPress={onCancel}
+              disabled={isSaving}
+            >
+              <LinearGradient
+                colors={['#FF5A5F', '#FF8C8F']}
+                style={styles.cancelButton}
+              >
+                <Ionicons name="close" size={wp('5%')} color="#FFFFFF" />
+                <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
+                  Cancel 🚫
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View style={saveAnimatedStyle}>
+            <TouchableOpacity
+              onPressIn={handleSavePressIn}
+              onPressOut={handleSavePressOut}
+              onPress={handleSave}
+              disabled={isSaving}
+            >
+              <LinearGradient
+                colors={['#6B48FF', '#FFD60A']}
+                style={styles.addButton}
+              >
+                {isSaving ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Ionicons name="checkmark" size={wp('5%')} color="#FFFFFF" />
+                    <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
+                      Save ✅
+                    </Text>
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
-      </View>
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
@@ -151,7 +221,6 @@ const styles = StyleSheet.create({
     width: wp('70%'),
   },
   header: {
-    backgroundColor: '#6B48FF',
     borderTopLeftRadius: wp('5%'),
     borderTopRightRadius: wp('5%'),
     padding: wp('4%'),
@@ -213,9 +282,10 @@ const styles = StyleSheet.create({
     marginTop: hp('2%'),
   },
   addButton: {
-    backgroundColor: '#6B48FF',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: hp('2%'),
-    paddingHorizontal: wp('8%'),
+    paddingHorizontal: wp('6%'),
     borderRadius: wp('8%'),
     shadowColor: '#000',
     shadowOpacity: 0.3,
@@ -224,9 +294,10 @@ const styles = StyleSheet.create({
     margin: wp('2%'),
   },
   cancelButton: {
-    backgroundColor: '#FF5A5F',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: hp('2%'),
-    paddingHorizontal: wp('8%'),
+    paddingHorizontal: wp('6%'),
     borderRadius: wp('8%'),
     shadowColor: '#000',
     shadowOpacity: 0.3,
@@ -239,6 +310,7 @@ const styles = StyleSheet.create({
     fontSize: wp('4%'),
     color: '#FFFFFF',
     textAlign: 'center',
+    marginLeft: wp('2%'),
   },
   buttonTextLandscape: {
     fontSize: wp('3.5%'),

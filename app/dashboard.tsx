@@ -1,10 +1,11 @@
-// app/dashboard.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { JournalEntry } from '../types/journal';
 import { RootState } from '../redux/store';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Dashboard() {
   const entries = useSelector((state: RootState) => state.journal.entries);
@@ -17,7 +18,6 @@ export default function Dashboard() {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
@@ -36,9 +36,9 @@ export default function Dashboard() {
     <ScrollView style={styles.container}>
       <Text style={[styles.header, isLandscape && styles.headerLandscape]}>Dashboard 📊</Text>
 
-      <View style={styles.section}>
+      <Animated.View entering={FadeInDown.duration(500)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Mood Trends
+          Mood Trends 😊🌟
         </Text>
         {Object.keys(moodCounts).length > 0 ? (
           Object.entries(moodCounts).map(([mood, count]) => (
@@ -46,7 +46,8 @@ export default function Dashboard() {
               <Text style={[styles.trendText, isLandscape && styles.trendTextLandscape]}>
                 {mood}: {count} {count === 1 ? 'time' : 'times'}
               </Text>
-              <View
+              <LinearGradient
+                colors={['#6B48FF', '#FFD60A']}
                 style={[
                   styles.trendBar,
                   {
@@ -60,14 +61,14 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No mood data yet.
+            No mood data yet. Start journaling! 📝
           </Text>
         )}
-      </View>
+      </Animated.View>
 
-      <View style={styles.section}>
+      <Animated.View entering={FadeInDown.duration(700)} style={styles.section}>
         <Text style={[styles.sectionTitle, isLandscape && styles.sectionTitleLandscape]}>
-          Entry Frequency
+          Entry Frequency 📅📈
         </Text>
         {Object.keys(entryFrequency).length > 0 ? (
           Object.entries(entryFrequency).map(([date, count]) => (
@@ -75,7 +76,8 @@ export default function Dashboard() {
               <Text style={[styles.trendText, isLandscape && styles.trendTextLandscape]}>
                 {date}: {count} {count === 1 ? 'entry' : 'entries'}
               </Text>
-              <View
+              <LinearGradient
+                colors={['#FFD60A', '#6B48FF']}
                 style={[
                   styles.trendBar,
                   {
@@ -92,10 +94,10 @@ export default function Dashboard() {
           ))
         ) : (
           <Text style={[styles.emptyText, isLandscape && styles.emptyTextLandscape]}>
-            No entries yet.
+            No entries yet. Add some! 📝
           </Text>
         )}
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }
@@ -118,6 +120,13 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: hp('3%'),
+    backgroundColor: '#FFFFFF',
+    padding: wp('4%'),
+    borderRadius: wp('3%'),
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: wp('5%'),
@@ -139,8 +148,7 @@ const styles = StyleSheet.create({
     fontSize: wp('3.5%'),
   },
   trendBar: {
-    height: hp('1%'),
-    backgroundColor: '#6B48FF',
+    height: hp('1.5%'),
     borderRadius: wp('1%'),
     marginTop: hp('0.5%'),
   },
