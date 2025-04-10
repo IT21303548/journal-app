@@ -1,50 +1,40 @@
-# Welcome to your Expo app 👋
+# JournalApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native journaling app with local storage, mood tracking, and visualizations, built with Expo.
 
-## Get started
+## Setup Instructions
+1. Clone the repo: `git clone <repo-url>`
+2. Install dependencies: `npx expo install`
+3. Run the app:
+   - `npx expo start`
+   - Press `a` for Android or `i` for iOS (or scan the QR code with the Expo Go app).
 
-1. Install dependencies
+## Features
+- Splash screen with logo and navigation
+- One-time account creation
+- Journal List: Add, view (grouped by date), and delete entries with mood and optional images
+- Dashboard: Mood trends and entry frequency visualizations
 
-   ```bash
-   npm install
-   ```
+## Design Decisions
+- **Database**: AsyncStorage is used for local data persistence, as required by the assignment. It stores the user’s name and journal entries (via Redux Persist).
+- **Redux Toolkit**: For scalable state management with persistence.
+- **React Native Paper**: For consistent, clean UI.
+- **Chart Kit**: Lightweight charting for visualizations.
+- **Expo Router**: For navigation, leveraging Expo’s file-based routing.
 
-2. Start the app
+## Third-Party Libraries
+- `expo-router`: Navigation
+- `@react-native-async-storage/async-storage`: Local database for persisting user data and journal entries
+- `redux`, `@reduxjs/toolkit`, `redux-persist`: State management with persistence
+- `react-native-paper`: UI components
+- `react-native-chart-kit`: Visualizations
+- `expo-image-picker`, `expo-file-system`: Image attachment
+- `react-native-safe-area-context`: Safe area handling
 
-   ```bash
-    npx expo start
-   ```
+## Known Limitations
+- No editing of existing entries (future improvement).
+- Visualizations limited to last 5 days.
+- AsyncStorage has size limits, but sufficient for this app’s scope.
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Screenshots
+(Add screenshots or a video demo here)
