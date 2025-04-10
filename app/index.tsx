@@ -1,8 +1,9 @@
-// app/index.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Index() {
   const [isLandscape, setIsLandscape] = React.useState(
@@ -14,28 +15,33 @@ export default function Index() {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-        Welcome to Journal App 📖
-      </Text>
-      <Text style={[styles.subtitle, isLandscape && styles.subtitleLandscape]}>
-        Start by creating an account to begin journaling.
-      </Text>
-      <TouchableOpacity
-        style={[styles.button, isLandscape && styles.buttonLandscape]}
-        onPress={() => router.push('/create-account')}
-      >
-        <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-          Create Account
+    <LinearGradient
+      colors={['#6B48FF', '#FFD60A']}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Ionicons name="book" size={wp('15%')} color="#FFFFFF" style={styles.icon} />
+        <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
+          Welcome to Journal App
         </Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={[styles.subtitle, isLandscape && styles.subtitleLandscape]}>
+          Capture your thoughts, moods, and memories in a creative way!
+        </Text>
+        <TouchableOpacity
+          style={[styles.button, isLandscape && styles.buttonLandscape]}
+          onPress={() => router.push('/create-account')}
+        >
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
+            Get Started
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -44,36 +50,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+  },
+  content: {
+    alignItems: 'center',
     padding: wp('5%'),
+  },
+  icon: {
+    marginBottom: hp('3%'),
   },
   title: {
     fontSize: wp('8%'),
     fontWeight: 'bold',
-    color: '#2D2D2D',
-    marginBottom: hp('2%'),
+    color: '#FFFFFF',
     textAlign: 'center',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
   },
   titleLandscape: {
     fontSize: wp('6%'),
   },
   subtitle: {
     fontSize: wp('4%'),
-    color: '#6B7280',
-    marginBottom: hp('4%'),
+    color: '#FFFFFF',
+    marginVertical: hp('2%'),
     textAlign: 'center',
+    opacity: 0.9,
   },
   subtitleLandscape: {
     fontSize: wp('3.5%'),
   },
   button: {
-    backgroundColor: '#6B48FF',
+    backgroundColor: '#FFFFFF',
     paddingVertical: hp('2%'),
     paddingHorizontal: wp('8%'),
-    borderRadius: wp('3%'),
+    borderRadius: wp('10%'),
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    shadowRadius: 5,
+    shadowRadius: 10,
     elevation: 5,
   },
   buttonLandscape: {
@@ -82,7 +96,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: wp('4%'),
-    color: '#FFFFFF',
+    color: '#6B48FF',
     fontWeight: 'bold',
   },
   buttonTextLandscape: {

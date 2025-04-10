@@ -1,5 +1,4 @@
-// assets/components/JournalForm.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,13 +8,14 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import MoodPicker from './MoodPicker';
 import * as ImagePicker from 'expo-image-picker';
 import { useFonts, Inter_700Bold, Inter_400Regular } from '@expo-google-fonts/inter';
 import { JournalEntry } from '../../types/journal';
-import debounce from 'lodash/debounce';
 
 type Props = {
   entry: JournalEntry | null;
@@ -38,17 +38,9 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
-
-  const debouncedSetText = useCallback(
-    debounce((newText: string) => {
-      setText(newText);
-    }, 300),
-    []
-  );
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -62,9 +54,6 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
       };
       await new Promise((resolve) => setTimeout(resolve, 500));
       onSave(newEntry);
-      setText('');
-      setMood('😊');
-      setImage(undefined);
     } finally {
       setIsSaving(false);
     }
@@ -85,53 +74,64 @@ export default function JournalForm({ entry, onSave, onCancel }: Props) {
   if (!fontsLoaded) return null;
 
   return (
-    <View style={[styles.container, isLandscape && styles.containerLandscape]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-          {entry ? 'Edit Entry ✍️' : 'New Entry ✍️'}
-        </Text>
-      </View>
-      <TextInput
-        style={[styles.input, isLandscape && styles.inputLandscape]}
-        placeholder="Write your thoughts..."
-        placeholderTextColor="#6B7280"
-        value={text}
-        onChangeText={debouncedSetText}
-        multiline
-      />
-      <MoodPicker selectedMood={mood} onSelectMood={setMood} />
-      <TouchableOpacity style={styles.imageButton} onPress={handleImagePick} disabled={isSaving}>
-        <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-          Add Image 📸
-        </Text>
-      </TouchableOpacity>
-      {image && (
-        <Image
-          source={{ uri: image }}
-          style={[styles.imagePreview, isLandscape && styles.imagePreviewLandscape]}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.keyboardContainer}
+    >
+      <View style={[styles.container, isLandscape && styles.containerLandscape]}>
+        <View style={styles.header}>
+          <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
+            {entry ? 'Edit Entry ✍️' : 'New Entry ✍️'}
+          </Text>
+        </View>
+        <TextInput
+          style={[styles.input, isLandscape && styles.inputLandscape]}
+          placeholder="Write your thoughts..."
+          placeholderTextColor="#6B7280"
+          value={text}
+          onChangeText={setText} // Removed debounce for instant feedback
+          multiline
+          autoFocus={!entry} // Auto-focus on new entry
+          textAlignVertical="top"
         />
-      )}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={onCancel} disabled={isSaving}>
+        <MoodPicker selectedMood={mood} onSelectMood={setMood} />
+        <TouchableOpacity style={styles.imageButton} onPress={handleImagePick} disabled={isSaving}>
           <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-            Cancel
+            Add Image 📸
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton} onPress={handleSave} disabled={isSaving}>
-          {isSaving ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
+        {image && (
+          <Image
+            source={{ uri: image }}
+            style={[styles.imagePreview, isLandscape && styles.imagePreviewLandscape]}
+          />
+        )}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.cancelButton} onPress={onCancel} disabled={isSaving}>
             <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-              Save Entry ✅
+              Cancel
             </Text>
-          )}
-        </TouchableOpacity>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
+                Save Entry ✅
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   container: {
     backgroundColor: '#FFFFFF',
     borderRadius: wp('5%'),
@@ -176,7 +176,6 @@ const styles = StyleSheet.create({
     fontSize: wp('4%'),
     fontFamily: 'Inter_400Regular',
     color: '#2D2D2D',
-    textAlignVertical: 'top',
     backgroundColor: '#F9FAFB',
     marginBottom: hp('2%'),
   },

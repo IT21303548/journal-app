@@ -1,8 +1,9 @@
-// app/create-account.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function CreateAccount() {
   const [username, setUsername] = useState('');
@@ -15,39 +16,43 @@ export default function CreateAccount() {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
     };
-
     const subscription = Dimensions.addEventListener('change', updateOrientation);
     return () => subscription?.remove();
   }, []);
 
   const handleCreateAccount = () => {
-    // Simulate account creation (in a real app, this would involve an API call)
     if (username.trim()) {
-      router.push('/journal'); // Redirect to journal page after "account creation"
+      router.push('/journal');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
-        Create Account
-      </Text>
-      <TextInput
-        style={[styles.input, isLandscape && styles.inputLandscape]}
-        placeholder="Enter your username"
-        placeholderTextColor="#6B7280"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TouchableOpacity
-        style={[styles.button, isLandscape && styles.buttonLandscape]}
-        onPress={handleCreateAccount}
-      >
-        <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
-          Create Account
+    <LinearGradient
+      colors={['#FFD60A', '#6B48FF']}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Ionicons name="person-add" size={wp('12%')} color="#FFFFFF" style={styles.icon} />
+        <Text style={[styles.title, isLandscape && styles.titleLandscape]}>
+          Create Your Account
         </Text>
-      </TouchableOpacity>
-    </View>
+        <TextInput
+          style={[styles.input, isLandscape && styles.inputLandscape]}
+          placeholder="Enter your username"
+          placeholderTextColor="#FFFFFF"
+          value={username}
+          onChangeText={setUsername}
+        />
+        <TouchableOpacity
+          style={[styles.button, isLandscape && styles.buttonLandscape]}
+          onPress={handleCreateAccount}
+        >
+          <Text style={[styles.buttonText, isLandscape && styles.buttonTextLandscape]}>
+            Start Journaling
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -56,27 +61,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+  },
+  content: {
+    alignItems: 'center',
     padding: wp('5%'),
   },
+  icon: {
+    marginBottom: hp('3%'),
+  },
   title: {
-    fontSize: wp('6%'),
+    fontSize: wp('7%'),
     fontWeight: 'bold',
-    color: '#2D2D2D',
+    color: '#FFFFFF',
+    textAlign: 'center',
     marginBottom: hp('4%'),
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
   },
   titleLandscape: {
     fontSize: wp('5%'),
   },
   input: {
     width: wp('80%'),
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: wp('3%'),
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    borderRadius: wp('5%'),
     padding: wp('3%'),
     fontSize: wp('4%'),
-    color: '#2D2D2D',
-    backgroundColor: '#FFFFFF',
+    color: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     marginBottom: hp('3%'),
   },
   inputLandscape: {
@@ -84,13 +98,13 @@ const styles = StyleSheet.create({
     padding: wp('2%'),
   },
   button: {
-    backgroundColor: '#6B48FF',
+    backgroundColor: '#FFFFFF',
     paddingVertical: hp('2%'),
     paddingHorizontal: wp('8%'),
-    borderRadius: wp('3%'),
+    borderRadius: wp('10%'),
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    shadowRadius: 5,
+    shadowRadius: 10,
     elevation: 5,
   },
   buttonLandscape: {
@@ -99,7 +113,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: wp('4%'),
-    color: '#FFFFFF',
+    color: '#6B48FF',
     fontWeight: 'bold',
   },
   buttonTextLandscape: {
